@@ -60,8 +60,25 @@ X = df[features]; y = df[TARGET].astype(int)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, stratify=y, random_state=42)
 
 train_path = DATA_DIR/'train.csv'; test_path = DATA_DIR/'test.csv'
-X_train.assign(**{{TARGET:y_train}}).to_csv(train_path, index=False)
-X_test.assign(**{{TARGET:y_test}}).to_csv(test_path, index=False)
+# 3) Split and save locally (robust version without assign)
+X = df[[c for c in df.columns if c != TARGET]]
+y = df[TARGET].astype(int)
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.20, stratify=y, random_state=42
+)
+
+train_path = DATA_DIR / 'train.csv'
+test_path  = DATA_DIR / 'test.csv'
+
+train_df = X_train.copy()
+train_df[TARGET] = y_train.values
+train_df.to_csv(train_path, index=False)
+
+test_df = X_test.copy()
+test_df[TARGET] = y_test.values
+test_df.to_csv(test_path, index=False)
 
 # 4) Upload processed splits back to HF dataset
 try:
