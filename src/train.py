@@ -125,7 +125,7 @@ for name, (est, grid) in models.items():
         roc = roc_auc_score(y_test, proba)
     except Exception:
         roc = np.nan
-    results.append({{
+    results.append({
         'model': name,
         'best_params': gs.best_params_,
         'accuracy': accuracy_score(y_test, preds),
@@ -133,7 +133,7 @@ for name, (est, grid) in models.items():
         'recall': recall_score(y_test, preds, zero_division=0),
         'f1': f1_score(y_test, preds, zero_division=0),
         'roc_auc': roc
-    }})
+    })
 
 res_df = pd.DataFrame(results).sort_values('f1', ascending=False)
 (LOG_DIR/'experiments.csv').write_text(res_df.to_csv(index=False))
