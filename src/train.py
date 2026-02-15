@@ -79,7 +79,40 @@ train_df.to_csv(train_path, index=False)
 test_df = X_test.copy()
 test_df[TARGET] = y_test.values
 test_df.to_csv(test_path, index=False)
+# --------------------------------------------
+# Upload train/test splits back to HF dataset
+# --------------------------------------------
+try:
+    create_repo(
+        repo_id=HF_DATASET_REPO,
+        repo_type='dataset',
+        exist_ok=True,
+        token=hf_token
+    )
 
+    upload_file(
+        path_or_fileobj=str(train_path),
+        path_in_repo='train.csv',
+        repo_id=HF_DATASET_REPO,
+        repo_type='dataset',
+        token=hf_token,
+        create_pr=True
+    )
+
+    upload_file(
+        path_or_fileobj=str(test_path),
+        path_in_repo='test.csv',
+        repo_id=HF_DATASET_REPO,
+        repo_type='dataset',
+        token=hf_token,
+        create_pr=True
+    )
+
+    print("Uploaded train/test splits to Hugging Face dataset.")
+
+except Exception as e:
+    print("Upload splits note:", e)
+    
 # 4) Upload processed splits back to HF dataset
 try:
     create_repo(HF_DATASET_REPO, repo_type='dataset', exist_ok=True, token=HF_TOKEN)
