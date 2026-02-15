@@ -89,13 +89,28 @@ except Exception as e:
     print('Upload splits note:', e)
 
 # 5) Model building + tuning
-models = {{
-    'DecisionTree': (DecisionTreeClassifier(random_state=42), {{'max_depth':[3,5,8,None]}}),
-    'RandomForest': (RandomForestClassifier(n_estimators=200, random_state=42), {{'max_depth':[None,5,10]}}),
-    'GradientBoosting': (GradientBoostingClassifier(random_state=42), {{'learning_rate':[0.05,0.1], 'n_estimators':[100,200]}}),
-    'AdaBoost': (AdaBoostClassifier(random_state=42), {{'n_estimators':[100,200], 'learning_rate':[0.5,1.0]}}),
-    'Bagging': (BaggingClassifier(random_state=42), {{'n_estimators':[100,200]}})
-}}
+models = {
+    'DecisionTree': (
+        DecisionTreeClassifier(random_state=42),
+        {'max_depth': [3, 5, 8, None]}
+    ),
+    'RandomForest': (
+        RandomForestClassifier(n_estimators=200, random_state=42),
+        {'max_depth': [None, 5, 10]}
+    ),
+    'GradientBoosting': (
+        GradientBoostingClassifier(random_state=42),
+        {'learning_rate': [0.05, 0.1], 'n_estimators': [100, 200]}
+    ),
+    'AdaBoost': (
+        AdaBoostClassifier(random_state=42),
+        {'n_estimators': [100, 200], 'learning_rate': [0.5, 1.0]}
+    ),
+    'Bagging': (
+        BaggingClassifier(random_state=42),
+        {'n_estimators': [100, 200]}
+    ),
+}
 
 cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 results = []
