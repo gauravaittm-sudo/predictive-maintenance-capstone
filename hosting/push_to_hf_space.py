@@ -2,17 +2,12 @@
 """
 Create (or reuse) a Hugging Face Space using the DOCKER SDK and upload the app files.
 
-Requirements:
-- The GitHub Actions job must provide an HF token (Write role) via env HF_TOKEN or --hf-token arg.
-- Your repo should contain: Dockerfile, app.py, requirements.txt, README.md at the project root.
-- The Space will be created (idempotent) and these files uploaded on each run.
+Requires:
+- HF token with Write role provided via --hf-token or env HF_TOKEN.
+- Files present at repo root: Dockerfile, app.py, requirements.txt, README.md.
 
-Why docker?
-- The Hub API officially supports creating Spaces through create_repo(..., repo_type="space", space_sdk=...).
-- Your environment accepts "docker" (and not "streamlit") as SDK. The Dockerfile controls how Streamlit runs.
-Docs:
-- Manage Spaces programmatically (create_repo + upload) → https://huggingface.co/docs/huggingface_hub/guides/manage-spaces
-- HfApi reference (create_repo, upload_file, upload_folder) → https://huggingface.co/docs/huggingface_hub/package_reference/hf_api
+Refs:
+- Manage Spaces programmatically (create_repo + upload): https://huggingface.co/docs/huggingface_hub/guides/manage-spaces
 """
 
 import argparse
@@ -21,7 +16,8 @@ import sys
 from pathlib import Path
 from typing import List
 
-from huggingface_hub import HfApi, HfHubHTTPError  # huggingface_hub methods
+from huggingface_hub import HfApi
+from huggingface_hub.errors import HfHubHTTPError  # ← correct import
 
 APP_FILES: List[str] = [
     "Dockerfile",
@@ -32,7 +28,6 @@ APP_FILES: List[str] = [
 
 
 def verify_files_exist(files: List[str]) -> None:
-    """Ensure files exist before upload to give clear error early."""
     missing = [f for f in files if not Path(f).exists()]
     if missing:
         print("ERROR: Missing required files for Space upload:", ", ".join(missing))
@@ -44,12 +39,12 @@ def main():
     parser.add_argument(
         "--space-id",
         required=True,
-        help="Full Space id, e.g. 'Gaurav328/telemetry-predict-maintenance-demo'"
+        help="Full Space id, e.g. 'Gaurav328/telemetry-predict-maintenance-demo'",
     )
     parser.add_argument(
         "--hf-token",
         default=os.environ.get("HF_TOKEN"),
-        help="HF access token with Write role. If omitted, taken from env HF_TOKEN."
+        help="HF access token with Write role. If omitted, taken from env HF_TOKEN.",
     )
     args = parser.parse_args()
 
@@ -57,19 +52,16 @@ def main():
         print("ERROR: No HF token provided. Set env HF_TOKEN or pass --hf-token.")
         sys.exit(1)
 
-    # Ensure files exist locally
     verify_files_exist(APP_FILES)
 
     api = HfApi()
 
-    # 1) Create (or reuse) the Space with DOCKER SDK (idempotent)
-    # Note: In recent hub versions, Spaces are created using create_repo(repo_type='space', space_sdk=...).
-    # Reference: Manage your Space guide.
+    # 1) Create/ensure Space (Docker SDK)
     try:
         api.create_repo(
             repo_id=args.space_id,
             repo_type="space",
-            space_sdk="docker",     # Accepted SDKs include: gradio | docker | static
+            space_sdk="docker",   # accepted SDKs: gradio | docker | static
             private=False,
             exist_ok=True,
             token=args.hf_token,
@@ -80,25 +72,23 @@ def main():
         print(e)
         sys.exit(1)
 
-    # 2) Upload the application files
-    # You can also use upload_folder(..., repo_type='space') if you maintain everything in a subfolder.
+    # 2) Upload app files
     for src in APP_FILES:
         try:
             api.upload_file(
                 path_or_fileobj=src,
-                path_in_repo=src,       # same path at Space root
+                path_in_repo=src,
                 repo_id=args.space_id,
                 repo_type="space",
                 token=args.hf_token,
             )
             print(f"Uploaded: {src}")
         except HfHubHTTPError as e:
-            print(f"ERROR: Failed to upload {src} to the Space.")
+            print(f"ERROR: Failed to upload {src} to Space.")
             print(e)
             sys.exit(1)
 
-    print(f"✅ Space updated successfully: {args.space_id}")
-    print("NOTE: The Space may take a couple of minutes to build the Docker image and become live.")
+    print(f"✅ Space updated. Build may take a few minutes to complete: {args.space_id}")
 
 
 if __name__ == "__main__":
