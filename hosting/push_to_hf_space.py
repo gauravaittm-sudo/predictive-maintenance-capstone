@@ -16,8 +16,7 @@ import sys
 from pathlib import Path
 from typing import List
 
-from huggingface_hub import HfApi
-from huggingface_hub.errors import HfHubHTTPError  # ← correct import
+from huggingface_hub import HfApi  # avoid importing HfHubHTTPError for max compatibility
 
 APP_FILES: List[str] = [
     "Dockerfile",
@@ -61,13 +60,13 @@ def main():
         api.create_repo(
             repo_id=args.space_id,
             repo_type="space",
-            space_sdk="docker",   # accepted SDKs: gradio | docker | static
+            space_sdk="docker",   # accepted SDKs include: gradio | docker | static
             private=False,
             exist_ok=True,
             token=args.hf_token,
         )
         print(f"Space ensured/created: {args.space_id}")
-    except HfHubHTTPError as e:
+    except Exception as e:  # generic catch for hub version differences
         print("ERROR: Failed to create/ensure the Space repository.")
         print(e)
         sys.exit(1)
@@ -83,7 +82,7 @@ def main():
                 token=args.hf_token,
             )
             print(f"Uploaded: {src}")
-        except HfHubHTTPError as e:
+        except Exception as e:  # generic catch for hub version differences
             print(f"ERROR: Failed to upload {src} to Space.")
             print(e)
             sys.exit(1)
