@@ -41,4 +41,4 @@ python hosting/push_to_hf_space.py   --space-id {HF_SPACE_ID}   --hf-token $HF_T
 ## CI/CD (GitHub Actions)
 - On push to `main`, the workflow trains, evaluates, uploads the best model to the Model Hub and updates the Space.
 
-- Trigger full CI run
+- Trigger run
