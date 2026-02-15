@@ -27,7 +27,7 @@ FILENAME = 'engine_data.csv'
 TARGET = 'engine_condition'
 
 # 1) Load dataset from HF Dataset Hub
-csv_path = hf_hub_download(repo_id=HF_DATASET_REPO, repo_type='dataset', filename=FILENAME, token=HF_TOKEN)
+csv_path = hf_hub_download(repo_id=HF_DATASET_REPO, repo_type='dataset', filename=FILENAME, token=HF_TOKEN, create_pr=True,)
 df = pd.read_csv(csv_path)
 
 # 2) Clean
@@ -83,8 +83,8 @@ test_df.to_csv(test_path, index=False)
 # 4) Upload processed splits back to HF dataset
 try:
     create_repo(HF_DATASET_REPO, repo_type='dataset', exist_ok=True, token=HF_TOKEN)
-    upload_file(path_or_fileobj=str(train_path), path_in_repo='train.csv', repo_id=HF_DATASET_REPO, repo_type='dataset', token=HF_TOKEN)
-    upload_file(path_or_fileobj=str(test_path),  path_in_repo='test.csv',  repo_id=HF_DATASET_REPO, repo_type='dataset', token=HF_TOKEN)
+    upload_file(path_or_fileobj=str(train_path), path_in_repo='train.csv', repo_id=HF_DATASET_REPO, repo_type='dataset', token=HF_TOKEN, create_pr=True)
+    upload_file(path_or_fileobj=str(test_path),  path_in_repo='test.csv',  repo_id=HF_DATASET_REPO, repo_type='dataset', token=HF_TOKEN, create_pr=True)
 except Exception as e:
     print('Upload splits note:', e)
 
@@ -158,7 +158,7 @@ joblib.dump(final_est, model_path)
 # 7) Upload best model to HF Model Hub
 try:
     create_repo(HF_MODEL_REPO, repo_type='model', exist_ok=True, token=HF_TOKEN)
-    upload_file(path_or_fileobj=str(model_path), path_in_repo=model_path.name, repo_id=HF_MODEL_REPO, repo_type='model', token=HF_TOKEN)
+    upload_file(path_or_fileobj=str(model_path), path_in_repo=model_path.name, repo_id=HF_MODEL_REPO, repo_type='model', token=HF_TOKEN, create_pr=True)
 except Exception as e:
     print('Model upload note:', e)
 
