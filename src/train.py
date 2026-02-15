@@ -27,7 +27,7 @@ FILENAME = 'engine_data.csv'
 TARGET = 'engine_condition'
 
 # 1) Load dataset from HF Dataset Hub
-csv_path = hf_hub_download(repo_id=HF_DATASET_REPO, repo_type='dataset', filename=FILENAME, token=HF_TOKEN, create_pr=True,)
+csv_path = hf_hub_download(repo_id=HF_DATASET_REPO, repo_type='dataset', filename=FILENAME, token=HF_TOKEN)
 df = pd.read_csv(csv_path)
 
 # 2) Clean
