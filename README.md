@@ -1,4 +1,4 @@
-# Predictive Maintenance – Final Capstone (DTIAS)
+# Predictive Maintenance – Final Capstone 
 
 This repository contains the **final submission** assets for the Predictive Maintenance project: training pipeline, experiment logs, model registry, Streamlit inference app, Dockerfile, and GitHub Actions workflow.
 
